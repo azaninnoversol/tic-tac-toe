@@ -6,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { validateEmail } from '../utils/helper';
 import { SignInUser } from '../api/service';
 import Toast from 'react-native-toast-message';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAppContext } from '../context-api/AppContext';
 
 const defaultStates = {
   email: '',
@@ -15,6 +15,8 @@ const defaultStates = {
 
 function Login() {
   const navigation = useNavigation();
+  const { login } = useAppContext();
+
   const [formData, setFormData] = useState(defaultStates);
   const [loading, setLoading] = useState(false);
 
@@ -38,7 +40,7 @@ function Login() {
           visibilityTime: 4000,
         });
       } else {
-        AsyncStorage.setItem('TOKEN', res?.token);
+        await login(res?.token);
         setFormData(defaultStates);
         Toast.show({
           type: 'success',

@@ -1,29 +1,23 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
-import Login from '../screens/Login';
-import Register from '../screens/Register';
+import UnAuthScreen from './UnAuthScreen';
+import AuthScreen from './AuthScreen';
+import { useAppContext } from '../context-api/AppContext';
 
-function NavigationScreen(props) {
-  const Stack = createNativeStackNavigator();
+function NavigationScreen() {
+  const { token, loading } = useAppContext();
+  const screenOptions = { headerShown: false };
 
-  const screenOptions = {
-    headerShown: false,
-  };
+  if (loading) return null;
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        initialRouteName={props.initRoute}
-        screenOptions={{
-          ...screenOptions,
-        }}
-      >
-        <Stack.Screen name="Login" component={Login} />
-        <Stack.Screen name="Signup" component={Register} />
-      </Stack.Navigator>
+      {!token ? (
+        <UnAuthScreen screenOptions={screenOptions} />
+      ) : (
+        <AuthScreen screenOptions={screenOptions} />
+      )}
     </NavigationContainer>
   );
 }
-
 export default React.memo(NavigationScreen);

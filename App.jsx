@@ -1,15 +1,12 @@
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import {
-  SafeAreaProvider,
-  SafeAreaView,
-  useSafeAreaInsets,
-} from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import NavigationScreen from './src/container/NavigationScreen';
 import { AuthProvider } from './src/context-api/AppContext';
-import { enableScreens } from 'react-native-screens';
-import 'react-native-url-polyfill/auto';
 import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import 'react-native-url-polyfill/auto';
+import { enableScreens } from 'react-native-screens';
 
 enableScreens();
 
@@ -27,17 +24,13 @@ function App() {
 }
 
 function AppContent() {
-  const insets = useSafeAreaInsets();
+  const token = AsyncStorage.getItem('TOKEN');
 
   return (
-    <SafeAreaView style={styles?.container}>
+    <SafeAreaView style={token ? styles?.authcontainer : styles?.container}>
       <View
         style={{
           flex: 1,
-          paddingTop: insets.top,
-          paddingBottom: insets.bottom,
-          paddingRight: insets.right,
-          paddingLeft: insets.left,
         }}
       >
         <NavigationScreen initRoute={'Login'} />
@@ -50,6 +43,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#0A0171',
+  },
+  authcontainer: {
+    flex: 1,
+    backgroundColor: 'transparent',
+    height: '100%',
   },
 });
 
