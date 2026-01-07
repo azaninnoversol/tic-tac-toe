@@ -71,4 +71,25 @@ const SignInUser = async (email, password) => {
   }
 };
 
-export { RegisterUser, SignInUser };
+const getLoggedInUser = async () => {
+  try {
+    const { data, error } = await supabase.auth.getUser();
+
+    if (error) {
+      return {
+        success: false,
+        message: error?.message || 'Something Went Wrong',
+      };
+    }
+
+    return {
+      success: true,
+      message: 'Fetch User Successfully',
+      data: data?.user,
+    };
+  } catch (err) {
+    return { success: false, message: err.message || 'Something went wrong' };
+  }
+};
+
+export { RegisterUser, SignInUser, getLoggedInUser };

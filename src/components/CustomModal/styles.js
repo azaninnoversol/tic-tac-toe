@@ -13,6 +13,7 @@ export default StyleSheet.create({
   },
   bottomContainer: {
     justifyContent: 'flex-end',
+    marginBottom: 20,
   },
   content: {
     width: '90%',
