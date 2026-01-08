@@ -73,23 +73,91 @@ const SignInUser = async (email, password) => {
 
 const getLoggedInUser = async () => {
   try {
-    const { data, error } = await supabase.auth.getUser();
+    const {
+      data: { session },
+      error,
+    } = await supabase.auth.getSession();
 
-    if (error) {
+    if (error || !session) {
       return {
         success: false,
-        message: error?.message || 'Something Went Wrong',
+        message: 'User not logged in',
+        data: null,
+      };
+    }
+
+    const email = session?.user?.email;
+    const { data: userData, error: userError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .single();
+
+    if (userError) {
+      return {
+        success: false,
+        message: userError.message || 'User not found in table',
+        data: null,
       };
     }
 
     return {
       success: true,
-      message: 'Fetch User Successfully',
-      data: data?.user,
+      message: 'User fetched successfully',
+      data: userData,
     };
+  } catch (err) {
+    return {
+      success: false,
+      message: err.message || 'Something went wrong',
+    };
+  }
+};
+
+const updateUser = async updates => {
+  try {
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+    if (sessionError || !session)
+      return { success: false, message: 'User not logged in' };
+
+    const userId = session.user.id;
+    let tableUpdates = {};
+
+    if (updates?.password) {
+      const { error: pwError } = await supabase.auth.updateUser({
+        password: updates.password,
+      });
+      if (pwError) return { success: false, message: pwError.message };
+    }
+
+    if (updates?.email) {
+      const { error: emailError } = await supabase.auth.updateUser({
+        email: updates.email,
+      });
+      if (emailError) return { success: false, message: emailError.message };
+      tableUpdates.email = updates.email;
+    }
+
+    if (updates?.username) tableUpdates.username = updates.username;
+
+    if (Object.keys(tableUpdates).length > 0) {
+      const { data, error } = await supabase
+        .from('users')
+        .update(tableUpdates)
+        .eq('uuid', userId)
+        .select()
+        .single();
+      if (error) return { success: false, message: error.message };
+      return { success: true, message: 'Profile updated successfully', data };
+    }
+
+    return { success: true, message: 'No changes detected' };
   } catch (err) {
     return { success: false, message: err.message || 'Something went wrong' };
   }
 };
 
-export { RegisterUser, SignInUser, getLoggedInUser };
+export { RegisterUser, SignInUser, getLoggedInUser, updateUser };

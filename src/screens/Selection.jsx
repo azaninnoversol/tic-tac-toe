@@ -91,6 +91,11 @@ function Selection() {
             alignItems: 'center',
             marginTop: 30,
           }}
+          onPress={() =>
+            navigation?.navigate('Game', {
+              name: isActive,
+            })
+          }
         />
       </ImageBackground>
     </View>
